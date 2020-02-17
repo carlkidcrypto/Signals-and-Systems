@@ -17,7 +17,7 @@ import scipy.signal as sig
 
 # Ramp funtion
 def r(t):
-    y = np.zeros((len(t),1))
+    y = np.zeros(t.shape) #t.shape of whatever is inputted in
     for i in range(len(t)): # run the loop once for each index of t 
         if t[i] >= 0: 
             y[i] = t[i] 
@@ -27,7 +27,7 @@ def r(t):
 
 # Step Function
 def u(t):
-    y = np.zeros((len(t),1))
+    y = np.zeros(t.shape) #t.shape of whatever is inputted in
     for i in range(len(t)): # run the loop once for each index of t 
         if t[i] >= 0: 
             y[i] = 1 
@@ -41,24 +41,32 @@ def u(t):
 steps = 1e-2
 t = np.arange(0,20 + steps, steps)    
 
-f1 = u(t-2) - u(t-9)
-f2 = (np.exp(-t))
-f3 = r(t-2)*(u(t-2) -u(t-3)) + r(4-t)*(u(t-3) -u(t-4))
+def f1(t):
+    y = u(t-2) - u(t-9)
+    return y
+
+def f2(t):
+    y = (np.exp(-t))*u(t)
+    return y
+
+def f3(t):
+    y = (r(t-2)*(u(t-2) -u(t-3))) + (r(4-t)*(u(t-3) -u(t-4)))
+    return y
 
 plt.figure(figsize = (10, 7))
 plt.subplot(3, 1, 1)
-plt.plot(t, f1)
+plt.plot(t, f1(t))
 plt.title('User Defined Funtions')
 plt.grid() 
 plt.ylabel('f1(t)') 
 
 plt.subplot(3, 1, 2)
-plt.plot(t, f2)
+plt.plot(t, f2(t))
 plt.grid() 
 plt.ylabel('f2(t)')
 
 plt.subplot(3, 1, 3)
-plt.plot(t, f3) 
+plt.plot(t, f3(t)) 
 plt.grid() 
 plt.xlabel('t')
 plt.ylabel('f3(t)')
@@ -95,32 +103,42 @@ t = np.arange(0,20 + steps, steps)
 
 NN = len(t)
 tE = np.arange(0,2*t[NN-1],steps)
-con12 = convo(f1,f2)*steps
-con23 = convo(f2,f3)*steps
-con13 = convo(f1,f3)*steps
+con12 = convo(f1(t),f2(t))*steps
+con23 = convo(f2(t),f3(t))*steps
+con13 = convo(f1(t),f3(t))*steps
 
-con12check = (sig.convolve(f1,f2))*steps
+con12check = sig.convolve(f1(t),f2(t))*steps
+con23check = sig.convolve(f2(t),f3(t))*steps
+con13check = sig.convolve(f1(t),f3(t))*steps
 
-
-plt.figure(figsize = (10,7))
+plt.figure(figsize = (10,15))
+plt.subplot(3,1,1)
 plt.plot(tE,con12, label='User-defined')
-#plt.plot(tE,con12check, label='Built-in')
-plt.title('f1 * f2')
+plt.plot(tE,con12check, '--', label='Built-in')
+plt.ylabel('f1 * f2')
+plt.xlim([0, 15])
+plt.ylim([0, 1.2])
 plt.grid()
-plt.show()
+plt.legend()
+plt.title('Check with sig.convolve')
 
-plt.figure(figsize = (10,7))
+plt.subplot(3,1,2)
 plt.plot(tE,con23, label='User-defined')
-#plt.plot(tE,con12check, label='Built-in')
-plt.title('f2 * f3')
+plt.plot(tE,con23check,'--', label='Built-in')
+plt.ylabel('f2 * f3')
+plt.xlim([0, 15])
+plt.ylim([0, 1.2])
 plt.grid()
-plt.show()
+plt.legend()
 
-plt.figure(figsize = (10,7))
+plt.subplot(3,1,3)
 plt.plot(tE,con13, label='User-defined')
-#plt.plot(tE,con12check, label='Built-in')
-plt.title('f1 * f3')
+plt.plot(tE,con13check,'--', label='Built-in')
+plt.ylabel('f1 * f3')
 plt.grid()
+plt.xlim([0, 15])
+plt.ylim([0, 1.2])
+plt.legend()
 plt.show()
 
 
